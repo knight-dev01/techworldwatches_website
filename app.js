@@ -1,5 +1,5 @@
 /* =========================================================
-   TECH WORLD WATCH — app.js
+   TECH WORLD WATCHES — app.js
    ---------------------------------------------------------
    Frontend : HTML / CSS / Vanilla JavaScript (no React)
    Database : SQLite via SQL.js 1.10.3 (WebAssembly)
@@ -31,7 +31,7 @@ const PLACEHOLDER_IMG =
       '<rect width="800" height="600" fill="#efe9db"/>' +
       '<circle cx="400" cy="290" r="120" fill="none" stroke="#c9b98d" stroke-width="10"/>' +
       '<path d="M400 200v95l65 40" fill="none" stroke="#c9b98d" stroke-width="10" stroke-linecap="round"/>' +
-      '<text x="400" y="490" font-family="Arial" font-size="26" fill="#a89568" text-anchor="middle">TECH WORLD WATCH</text>' +
+      '<text x="400" y="490" font-family="Arial" font-size="26" fill="#a89568" text-anchor="middle">TECH WORLD WATCHES</text>' +
     "</svg>"
   );
 

@@ -1,5 +1,5 @@
 /* =========================================================
-   TECH WORLD WATCH — style.css
+   TECH WORLD WATCHES — style.css
    Palette: black #111, white #fff, gold #D4AF37
    Mobile-first, no frameworks.
    ========================================================= */
@@ -220,6 +220,11 @@ code {
   white-space: nowrap;
 }
 .brand-text em { font-style: normal; color: var(--gold); }
+@media (max-width: 420px) {
+  .brand { gap: 8px; }
+  .brand-mark { width: 32px; height: 32px; }
+  .brand-text { font-size: 0.78rem; letter-spacing: 0.08em; }
+}
 
 .nav {
   display: none;
@@ -294,6 +299,12 @@ code {
   .nav { display: flex; }
   .nav-toggle { display: none; }
   .brand-text { font-size: 1rem; }
+}
+@media (min-width: 900px) and (max-width: 1099px) {
+  .brand-mark { width: 34px; height: 34px; }
+  .brand-text { font-size: 0.82rem; letter-spacing: 0.1em; }
+  .nav-link { padding: 8px 9px; font-size: 0.8rem; }
+  .cart-btn { padding: 9px 12px; }
 }
 
 /* mobile nav panel */

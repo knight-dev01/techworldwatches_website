@@ -1,4 +1,4 @@
-# TECH WORLD WATCH
+# TECH WORLD WATCHES
 
 A complete **offline** luxury watch store built with HTML, CSS and vanilla JavaScript.
 
