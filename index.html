@@ -11,6 +11,18 @@
 <body>
   <a class="skip-link" href="#products">Skip to products</a>
 
+  <!-- ================= LECTURER REVIEW STRIP ================= -->
+  <div class="review-strip" role="note">
+    <div class="container review-strip-inner">
+      <p><span class="review-dot" aria-hidden="true"></span><strong>Student Project</strong> &middot; Lecturer Review Build</p>
+      <p class="review-strip-meta">HTML &middot; CSS &middot; Vanilla JS &middot; SQLite via SQL.js &mdash; offline, no server</p>
+      <div class="review-strip-actions">
+        <button class="review-link" type="button" data-scroll-console>View DB console &darr;</button>
+        <button class="review-link" type="button" id="guideOpen">Lecturer guide</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= HEADER / NAV ================= -->
   <header class="site-header" id="top">
     <div class="container header-inner">
@@ -32,6 +44,12 @@
         <a class="nav-link" href="#gallery">Gallery</a>
         <a class="nav-link" href="#blog">Blog</a>
         <a class="nav-link" href="#contact">Contact Us</a>
+        <a class="nav-link nav-link-admin" href="#admin" id="adminNavLink">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" />
+          </svg>
+          Admin
+        </a>
       </nav>
 
       <div class="header-actions">
@@ -104,7 +122,25 @@
         </div>
         <p class="grid-empty" id="gridEmpty" hidden>No watches in this category yet. Add one with the console below.</p>
 
-        <!-- ---------- ADMIN / DB DEMO PANEL ---------- -->
+        <!-- ---------- HIDDEN ADMIN / DB DEMO PANEL ---------- -->
+        <section class="admin-panel" id="admin" aria-labelledby="adminTitle" hidden>
+          <div class="admin-bar">
+            <div class="admin-bar-title">
+              <span class="admin-lock" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.9">
+                  <rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" />
+                </svg>
+              </span>
+              <div>
+                <p class="eyebrow">Restricted &middot; staff only</p>
+                <h3 id="adminTitle">Admin Dashboard</h3>
+              </div>
+            </div>
+            <div class="admin-bar-actions">
+              <span class="admin-session">Signed in as <strong>admin</strong></span>
+              <button class="btn btn-outline admin-lock-btn" type="button" id="adminLock">Lock panel</button>
+            </div>
+          </div>
         <div class="console" id="dbConsole">
           <div class="console-head">
             <div>
@@ -175,6 +211,7 @@
             DB Browser for SQLite.
           </p>
         </div>
+        </section>
       </div>
     </section>
 
@@ -352,6 +389,7 @@
         <a href="#gallery">Gallery</a>
         <a href="#blog">Blog</a>
         <a href="#contact">Contact Us</a>
+        <a href="#admin" data-admin-link>Admin Panel</a>
       </nav>
 
       <div class="footer-meta">
@@ -363,6 +401,148 @@
       <p>&copy; <span id="year">2026</span> Tech World Watch. All rights reserved.</p>
     </div>
   </footer>
+
+  <!-- ================= ADMIN LOGIN (fake gate for the DB console) ================= -->
+  <div class="overlay" id="adminOverlay" hidden></div>
+  <div class="admin-login" id="adminLogin" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle" hidden>
+    <button class="icon-btn modal-close" type="button" id="adminClose" aria-label="Close admin sign in">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18" stroke-linecap="round" /></svg>
+    </button>
+    <div class="admin-login-head">
+      <span class="admin-lock" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.9">
+          <rect x="5" y="10" width="14" height="10" rx="2" /><path d="M8 10V7a4 4 0 0 1 8 0v3" />
+        </svg>
+      </span>
+      <p class="eyebrow">Restricted area</p>
+      <h2 id="adminLoginTitle">Admin Sign In</h2>
+      <p class="admin-login-lead">
+        The database console is hidden from customers. Sign in with the demo staff account to
+        open the admin dashboard.
+      </p>
+    </div>
+    <form class="admin-form" id="adminForm" novalidate>
+      <div class="field">
+        <label for="adminUser">Username</label>
+        <input id="adminUser" name="username" type="text" value="admin" autocomplete="username" required />
+      </div>
+      <div class="field">
+        <label for="adminPass">Password</label>
+        <input id="adminPass" name="password" type="password" placeholder="Enter demo password" autocomplete="current-password" required />
+      </div>
+      <p class="admin-hint">Demo credentials: <code>admin</code> / <code>admin123</code></p>
+      <p class="form-note" id="adminNote" role="alert"></p>
+      <button class="btn btn-gold btn-block" type="submit">Sign in to Admin</button>
+      <p class="admin-fine">Simulated client-side login for the student project &mdash; not real security.</p>
+    </form>
+  </div>
+
+  <!-- ================= LECTURER GUIDE ================= -->
+  <div class="overlay" id="guideOverlay" hidden></div>
+  <div class="guide-modal" id="guideModal" role="dialog" aria-modal="true" aria-labelledby="guideTitle" hidden>
+    <button class="icon-btn modal-close" type="button" id="guideClose" aria-label="Close lecturer guide">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18" stroke-linecap="round" /></svg>
+    </button>
+    <p class="eyebrow">For the lecturer</p>
+    <h2 id="guideTitle">Lecturer Review Guide</h2>
+    <p class="guide-lead">
+      This is a student project that runs entirely offline from this folder. Here is the fastest
+      route through every requirement.
+    </p>
+    <ol class="guide-list">
+      <li><span class="tick" aria-hidden="true">1</span><div><strong>Admin panel (hidden DB console)</strong><br />Sign in with <code>admin</code> / <code>admin123</code> to reveal it. It is not visible to normal visitors.</div></li>
+      <li><span class="tick" aria-hidden="true">2</span><div><strong>Products come from SQL</strong><br />Every card is rendered from <code>SELECT * FROM watches</code>, not a hardcoded array.</div></li>
+      <li><span class="tick" aria-hidden="true">3</span><div><strong>Persistence</strong><br />Insert a watch, then refresh: it is still there, because the whole database is saved in <code>localStorage["watchDB_file"]</code>.</div></li>
+      <li><span class="tick" aria-hidden="true">4</span><div><strong>Real .db export</strong><br />Export the file and open it in DB Browser for SQLite to inspect the <code>watches</code> table.</div></li>
+      <li><span class="tick" aria-hidden="true">5</span><div><strong>Demo checkout</strong><br />The cart uses a predetermined fake checkout (Ifet Great, card ending 4242). No payment is processed.</div></li>
+    </ol>
+    <div class="guide-actions">
+      <button class="btn btn-dark" type="button" id="guideConsole">Open admin / DB console</button>
+      <button class="btn btn-outline" type="button" id="guideExport">Export .db file</button>
+      <button class="btn btn-outline" type="button" id="guideDismiss">Close</button>
+    </div>
+    <p class="guide-foot">Tip: DevTools &rarr; Application &rarr; Local Storage shows <code>watchDB_file</code>.</p>
+  </div>
+
+  <!-- ================= CHECKOUT (predetermined DEMO) ================= -->
+  <div class="overlay" id="checkoutOverlay" hidden></div>
+  <div class="checkout-modal" id="checkoutModal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle" hidden>
+    <button class="icon-btn modal-close" type="button" id="checkoutClose" aria-label="Close checkout">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18" stroke-linecap="round" /></svg>
+    </button>
+
+    <div class="checkout-main" id="checkoutFormWrap">
+      <p class="eyebrow">Demo checkout &middot; no real payment</p>
+      <h2 id="checkoutTitle">Checkout</h2>
+      <p class="checkout-lead">
+        A predetermined demo order: details are prefilled and the card ending in 4242 is selected.
+        Place the order to see the simulated confirmation.
+      </p>
+
+      <div class="checkout-grid">
+        <aside class="checkout-summary" aria-label="Order summary">
+          <h3>Order summary</h3>
+          <ul id="checkoutItems"></ul>
+          <p class="sum-row"><span>Subtotal</span><span id="checkoutSubtotal">&#8358;0</span></p>
+          <p class="sum-row"><span>Delivery &middot; Lagos</span><span>Free</span></p>
+          <p class="sum-row sum-total"><span>Total</span><strong id="checkoutTotal">&#8358;0</strong></p>
+          <p class="summary-note">Estimated delivery: 2&ndash;3 business days.</p>
+        </aside>
+
+        <form class="checkout-form" id="checkoutForm" novalidate>
+          <div class="field">
+            <label for="coName">Full name</label>
+            <input id="coName" type="text" value="Ifet Great" autocomplete="name" required />
+          </div>
+          <div class="field">
+            <label for="coPhone">Phone</label>
+            <input id="coPhone" type="tel" value="+234 801 234 5678" autocomplete="tel" required />
+          </div>
+          <div class="field">
+            <label for="coEmail">Email</label>
+            <input id="coEmail" type="email" value="greatifet12@gmail.com" autocomplete="email" required />
+          </div>
+          <div class="field">
+            <label for="coAddress">Delivery address</label>
+            <textarea id="coAddress" rows="2" required>12 Adeola Odeku Street, Victoria Island, Lagos</textarea>
+          </div>
+
+          <fieldset class="pay-methods">
+            <legend>Payment method (demo)</legend>
+            <label><input type="radio" name="pay" value="Card ending 4242" checked /> Card ending 4242 <span class="pay-tag">default</span></label>
+            <label><input type="radio" name="pay" value="Bank transfer" /> Bank transfer</label>
+            <label><input type="radio" name="pay" value="Pay on delivery" /> Pay on delivery</label>
+          </fieldset>
+
+          <p class="form-note" id="checkoutNote" role="alert"></p>
+          <button class="btn btn-gold btn-block" type="submit" id="placeOrderBtn">Place Demo Order</button>
+          <p class="checkout-fine">Nothing is charged and the order stays in this browser only.</p>
+        </form>
+      </div>
+    </div>
+
+    <div class="checkout-success" id="checkoutSuccess" hidden>
+      <div class="success-badge" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2.2">
+          <path d="m5 12.5 4.5 4.5L19 7" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </div>
+      <h2>Order placed (demo)</h2>
+      <p>Thanks <strong id="successName">Ifet</strong>, your demo order is confirmed.</p>
+      <div class="order-box">
+        <div><span>Order number</span><strong id="successOrder">TWW-0001</strong></div>
+        <div><span>Payment</span><strong id="successPayment">Card ending 4242</strong></div>
+        <div><span>Total</span><strong id="successTotal">&#8358;0</strong></div>
+        <div><span>Delivery</span><strong>2&ndash;3 business days &middot; Lagos</strong></div>
+        <div><span>Saved to</span><strong><code>localStorage["tw_orders"]</code></strong></div>
+      </div>
+      <p class="checkout-fine">Simulated transaction &mdash; no money moved and no data left this browser.</p>
+      <div class="success-actions">
+        <button class="btn btn-gold" type="button" id="successContinue">Continue shopping</button>
+        <button class="btn btn-outline" type="button" id="successClose">Close</button>
+      </div>
+    </div>
+  </div>
 
   <!-- ================= CART DRAWER ================= -->
   <div class="overlay" id="cartOverlay" hidden></div>
@@ -396,6 +576,11 @@
       <button class="btn btn-gold btn-block" type="button" id="modalAdd">Add to Cart</button>
     </div>
   </div>
+
+  <button class="review-fab" id="guideFab" type="button" aria-haspopup="dialog" aria-controls="guideModal">
+    <span class="review-dot" aria-hidden="true"></span>
+    Lecturer review
+  </button>
 
   <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
 

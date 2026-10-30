@@ -17,6 +17,12 @@ const WASM_CDN = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.
 const DB_STORAGE_KEY = "watchDB_file";   // localStorage: base64 encoded SQLite file
 const CART_KEY = "cart";                 // localStorage: cart items
 const MESSAGES_KEY = "tw_contact_messages";
+const ORDERS_KEY = "tw_orders";          // localStorage: simulated checkout orders
+const ADMIN_SESSION_KEY = "tw_admin_session";
+
+/* Simulated staff account for the demo admin gate. */
+const ADMIN_USER = "admin";
+const ADMIN_PASS = "admin123";
 
 const PLACEHOLDER_IMG =
   "data:image/svg+xml;charset=UTF-8," +
@@ -322,8 +328,8 @@ function renderProducts() {
       empty.hidden = false;
       empty.textContent =
         state.filter === "all"
-          ? "The database is empty. Add a watch with the console below."
-          : "No watches in the \u201C" + state.filter + "\u201D category yet. Try another filter or insert one below.";
+          ? "The database is empty. Add a watch from the Admin panel."
+          : "No watches in the \u201C" + state.filter + "\u201D category yet. Try another filter or add one from the Admin panel.";
     }
     return;
   }
@@ -645,13 +651,34 @@ function renderCart() {
     .join("");
 }
 
+/* ----------------------------- Layer helpers ----------------------------- */
+/* Every overlay is hidden with the [hidden] attribute; CSS guarantees it wins
+   over display rules, so the cart stays closable. */
+function anyLayerOpen() {
+  return ["#cartDrawer", "#productModal", "#checkoutModal", "#adminLogin", "#guideModal"]
+    .some((selector) => {
+      const el = $(selector);
+      return el && !el.hidden;
+    });
+}
+
+function syncScrollLock() {
+  document.body.style.overflow = anyLayerOpen() ? "hidden" : "";
+}
+
+function restoreFocus() {
+  const el = state.lastFocused;
+  state.lastFocused = null;
+  if (el && typeof el.focus === "function" && el.offsetParent !== null) el.focus();
+}
+
 /* ----------------------------- Drawers / modals ----------------------------- */
 function openCart() {
   state.lastFocused = document.activeElement;
+  renderCart();
   $("#cartOverlay").hidden = false;
-  const drawer = $("#cartDrawer");
-  drawer.hidden = false;
-  document.body.style.overflow = "hidden";
+  $("#cartDrawer").hidden = false;
+  syncScrollLock();
   const closeBtn = $("#cartClose");
   if (closeBtn) closeBtn.focus();
 }
@@ -659,8 +686,8 @@ function openCart() {
 function closeCart() {
   $("#cartOverlay").hidden = true;
   $("#cartDrawer").hidden = true;
-  document.body.style.overflow = "";
-  if (state.lastFocused && typeof state.lastFocused.focus === "function") state.lastFocused.focus();
+  syncScrollLock();
+  if (!anyLayerOpen()) restoreFocus();
 }
 
 function openProduct(id) {
@@ -680,15 +707,15 @@ function openProduct(id) {
 
   $("#productOverlay").hidden = false;
   $("#productModal").hidden = false;
-  document.body.style.overflow = "hidden";
+  syncScrollLock();
   $("#modalClose").focus();
 }
 
 function closeProduct() {
   $("#productOverlay").hidden = true;
   $("#productModal").hidden = true;
-  document.body.style.overflow = "";
-  if (state.lastFocused && typeof state.lastFocused.focus === "function") state.lastFocused.focus();
+  syncScrollLock();
+  if (!anyLayerOpen()) restoreFocus();
 }
 
 /* ----------------------------- Contact form (localStorage) ----------------------------- */
@@ -736,6 +763,267 @@ function handleContactSubmit(event) {
   note.textContent = "Thanks " + name + "! Your message is saved locally. We will be in touch.";
   event.target.reset();
   toast("Message saved to localStorage.");
+}
+
+/* ----------------------------- Admin panel gate (demo only) ----------------------------- */
+function adminUnlocked() {
+  try {
+    return sessionStorage.getItem(ADMIN_SESSION_KEY) === "1";
+  } catch (err) {
+    return false;
+  }
+}
+
+function openAdminPanel(scrollToPanel) {
+  if (!state.ready) {
+    toast("The database is still starting up.", "error");
+    return;
+  }
+  if (!adminUnlocked()) {
+    openAdminLogin();
+    return;
+  }
+
+  const panel = $("#admin");
+  panel.hidden = false;
+  const navLink = $("#adminNavLink");
+  if (navLink) navLink.classList.add("is-unlocked");
+
+  if (scrollToPanel) {
+    panel.scrollIntoView({ behavior: "smooth", block: "start" });
+    panel.classList.remove("is-flash");
+    void panel.offsetWidth;
+    panel.classList.add("is-flash");
+    window.setTimeout(() => panel.classList.remove("is-flash"), 1500);
+  }
+}
+
+function openAdminLogin() {
+  state.lastFocused = document.activeElement;
+  $("#adminNote").textContent = "";
+  $("#adminNote").classList.remove("is-error");
+  $("#adminUser").value = ADMIN_USER;
+  $("#adminPass").value = "";
+  $("#adminOverlay").hidden = false;
+  $("#adminLogin").hidden = false;
+  syncScrollLock();
+  $("#adminPass").focus();
+}
+
+function closeAdminLogin() {
+  $("#adminOverlay").hidden = true;
+  $("#adminLogin").hidden = true;
+  syncScrollLock();
+  if (!anyLayerOpen()) restoreFocus();
+}
+
+function handleAdminLogin(event) {
+  event.preventDefault();
+  const user = $("#adminUser").value.trim();
+  const pass = $("#adminPass").value;
+  const note = $("#adminNote");
+
+  if (user !== ADMIN_USER || pass !== ADMIN_PASS) {
+    note.textContent = "Incorrect demo credentials. Use admin / admin123.";
+    note.classList.add("is-error");
+    const modal = $("#adminLogin");
+    modal.classList.remove("is-shake");
+    void modal.offsetWidth;
+    modal.classList.add("is-shake");
+    return;
+  }
+
+  try {
+    sessionStorage.setItem(ADMIN_SESSION_KEY, "1");
+  } catch (err) {
+    console.warn("[Admin] Could not persist the demo session.", err);
+  }
+
+  note.textContent = "";
+  note.classList.remove("is-error");
+  closeAdminLogin();
+  openAdminPanel(true);
+  toast("Admin panel unlocked \u2014 database console is now visible.");
+}
+
+function lockAdminPanel() {
+  $("#admin").hidden = true;
+  const navLink = $("#adminNavLink");
+  if (navLink) navLink.classList.remove("is-unlocked");
+  try {
+    sessionStorage.removeItem(ADMIN_SESSION_KEY);
+  } catch (err) {
+    /* ignore */
+  }
+  toast("Admin panel locked. Visitors cannot see the database console.");
+}
+
+/* ----------------------------- Lecturer guide ----------------------------- */
+function openGuide() {
+  state.lastFocused = document.activeElement;
+  $("#guideOverlay").hidden = false;
+  $("#guideModal").hidden = false;
+  syncScrollLock();
+  $("#guideClose").focus();
+}
+
+function closeGuide() {
+  $("#guideOverlay").hidden = true;
+  $("#guideModal").hidden = true;
+  syncScrollLock();
+  if (!anyLayerOpen()) restoreFocus();
+}
+
+/* ----------------------------- Demo checkout ----------------------------- */
+function readOrders() {
+  try {
+    const list = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
+    return Array.isArray(list) ? list : [];
+  } catch (err) {
+    return [];
+  }
+}
+
+function nextOrderNumber() {
+  return "TWW-" + String(readOrders().length + 1).padStart(4, "0");
+}
+
+function saveOrder(order) {
+  const orders = readOrders();
+  orders.push(order);
+  try {
+    localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
+  } catch (err) {
+    console.warn("[Checkout] Could not save the demo order.", err);
+  }
+}
+
+function renderCheckoutSummary() {
+  const list = $("#checkoutItems");
+  if (!list) return;
+  list.innerHTML = state.cart
+    .map(
+      (item) =>
+        "<li><span><b>" + escapeHtml(item.name) + "</b> \u00D7 " + item.qty + "</span>" +
+        "<em>" + naira(item.price * item.qty) + "</em></li>"
+    )
+    .join("");
+  $("#checkoutSubtotal").textContent = naira(cartTotal());
+  $("#checkoutTotal").textContent = naira(cartTotal());
+}
+
+function openCheckout() {
+  if (!state.cart.length) {
+    toast("Your cart is empty.", "error");
+    return;
+  }
+
+  // Close the cart drawer, keep the scroll locked, open the checkout dialog.
+  $("#cartOverlay").hidden = true;
+  $("#cartDrawer").hidden = true;
+  state.lastFocused = $("#cartToggle");
+
+  const form = $("#checkoutForm");
+  form.reset(); // restores the predetermined demo customer details
+  $("#checkoutFormWrap").hidden = false;
+  $("#checkoutSuccess").hidden = true;
+  $("#checkoutNote").textContent = "";
+  $("#checkoutNote").classList.remove("is-error");
+  const btn = $("#placeOrderBtn");
+  btn.disabled = false;
+  btn.textContent = "Place Demo Order";
+
+  renderCheckoutSummary();
+  $("#checkoutOverlay").hidden = false;
+  $("#checkoutModal").hidden = false;
+  syncScrollLock();
+  $("#coName").focus();
+}
+
+function closeCheckout() {
+  $("#checkoutOverlay").hidden = true;
+  $("#checkoutModal").hidden = true;
+  syncScrollLock();
+  if (!anyLayerOpen()) restoreFocus();
+}
+
+function showCheckoutSuccess(order) {
+  $("#checkoutFormWrap").hidden = true;
+  $("#checkoutSuccess").hidden = false;
+  $("#successName").textContent = order.customer.name.split(" ")[0] || "friend";
+  $("#successOrder").textContent = order.number;
+  $("#successPayment").textContent = order.payment;
+  $("#successTotal").textContent = naira(order.total);
+  $("#successContinue").focus();
+}
+
+function handlePlaceOrder(event) {
+  event.preventDefault();
+  const note = $("#checkoutNote");
+  const name = $("#coName").value.trim();
+  const phone = $("#coPhone").value.trim();
+  const email = $("#coEmail").value.trim();
+  const address = $("#coAddress").value.trim();
+  const paymentInput = document.querySelector('input[name="pay"]:checked');
+  const payment = paymentInput ? paymentInput.value : "Card ending 4242";
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email);
+  const phoneOk = /^[0-9+()\-\s]{7,20}$/.test(phone);
+
+  if (!state.cart.length) {
+    note.textContent = "Your cart is empty.";
+    note.classList.add("is-error");
+    return;
+  }
+  if (!name || !phone || !email || !address) {
+    note.textContent = "Please complete the delivery details.";
+    note.classList.add("is-error");
+    return;
+  }
+  if (!emailOk) {
+    note.textContent = "That email address does not look right.";
+    note.classList.add("is-error");
+    return;
+  }
+  if (!phoneOk) {
+    note.textContent = "Please enter a valid phone number.";
+    note.classList.add("is-error");
+    return;
+  }
+
+  const btn = $("#placeOrderBtn");
+  btn.disabled = true;
+  btn.textContent = "Processing demo payment\u2026";
+  note.classList.remove("is-error");
+  note.textContent = "Contacting the demo payment gateway\u2026";
+
+  // Predetermined fake delay so the flow feels like a real checkout.
+  window.setTimeout(() => {
+    const order = {
+      number: nextOrderNumber(),
+      items: state.cart.map((item) => ({ ...item })),
+      total: cartTotal(),
+      customer: { name, phone, email, address },
+      payment,
+      placedAt: new Date().toISOString(),
+      status: "demo-confirmed"
+    };
+
+    saveOrder(order);
+    showCheckoutSuccess(order);
+
+    // The demo order is complete, so empty the cart.
+    state.cart = [];
+    persistCart();
+    toast("Demo order " + order.number + " confirmed. No payment was taken.");
+  }, 1400);
+}
+
+function finishCheckout() {
+  const number = $("#successOrder").textContent;
+  closeCheckout();
+  toast("Order " + number + " saved to localStorage[\"tw_orders\"].");
+  const products = $("#products");
+  if (products) products.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 /* ----------------------------- Navigation ----------------------------- */
@@ -839,13 +1127,7 @@ function setupEvents() {
   $("#cartClose").addEventListener("click", closeCart);
   $("#cartOverlay").addEventListener("click", closeCart);
   $("#clearCartBtn").addEventListener("click", clearCart);
-  $("#checkoutBtn").addEventListener("click", () => {
-    if (!state.cart.length) {
-      toast("Your cart is empty.", "error");
-      return;
-    }
-    toast("Demo checkout \u2014 no payment is processed.");
-  });
+  $("#checkoutBtn").addEventListener("click", openCheckout);
 
   $("#cartItems").addEventListener("click", (event) => {
     const button = event.target.closest("button[data-cart]");
@@ -856,7 +1138,49 @@ function setupEvents() {
     if (button.dataset.cart === "remove") removeFromCart(id);
   });
 
-  // Product modal
+  // Demo checkout dialog
+  $("#checkoutClose").addEventListener("click", closeCheckout);
+  $("#checkoutOverlay").addEventListener("click", closeCheckout);
+  $("#checkoutForm").addEventListener("submit", handlePlaceOrder);
+  $("#successContinue").addEventListener("click", finishCheckout);
+  $("#successClose").addEventListener("click", closeCheckout);
+
+  // Admin gate + panel
+  $("#adminNavLink").addEventListener("click", (event) => {
+    event.preventDefault();
+    $("#primaryNav").classList.remove("is-open");
+    $("#navToggle").setAttribute("aria-expanded", "false");
+    openAdminPanel(true);
+  });
+  $$("[data-admin-link]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      openAdminPanel(true);
+    });
+  });
+  $$("[data-scroll-console]").forEach((button) => {
+    button.addEventListener("click", () => openAdminPanel(true));
+  });
+  $("#adminForm").addEventListener("submit", handleAdminLogin);
+  $("#adminClose").addEventListener("click", closeAdminLogin);
+  $("#adminOverlay").addEventListener("click", closeAdminLogin);
+  $("#adminLock").addEventListener("click", lockAdminPanel);
+
+  // Lecturer guide
+  $("#guideOpen").addEventListener("click", openGuide);
+  $("#guideFab").addEventListener("click", openGuide);
+  $("#guideClose").addEventListener("click", closeGuide);
+  $("#guideDismiss").addEventListener("click", closeGuide);
+  $("#guideOverlay").addEventListener("click", closeGuide);
+  $("#guideConsole").addEventListener("click", () => {
+    closeGuide();
+    openAdminPanel(true);
+  });
+  $("#guideExport").addEventListener("click", () => {
+    exportDB();
+  });
+
+  // Product detail modal
   $("#modalClose").addEventListener("click", closeProduct);
   $("#productOverlay").addEventListener("click", closeProduct);
   $("#modalAdd").addEventListener("click", (event) => {
@@ -867,9 +1191,12 @@ function setupEvents() {
   // Contact form
   $("#contactForm").addEventListener("submit", handleContactSubmit);
 
-  // Escape closes overlays
+  // Escape closes the top-most overlays
   document.addEventListener("keydown", (event) => {
     if (event.key !== "Escape") return;
+    if (!$("#checkoutModal").hidden) closeCheckout();
+    if (!$("#adminLogin").hidden) closeAdminLogin();
+    if (!$("#guideModal").hidden) closeGuide();
     if (!$("#cartDrawer").hidden) closeCart();
     if (!$("#productModal").hidden) closeProduct();
   });
@@ -884,6 +1211,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   try {
     renderProducts(); // "loading" state
     await initDB();
+    if (adminUnlocked()) openAdminPanel(false); // keep the panel open on refresh
     console.info("[App] Ready. Database size:", state.db.export().length, "bytes.");
     toast("Local SQLite database ready.");
   } catch (err) {
