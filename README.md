@@ -1,6 +1,6 @@
 # TECH WORLD WATCH
 
-A complete **offline** luxury watch e-commerce demo built for a student project.
+A complete **offline** luxury watch store built with HTML, CSS and vanilla JavaScript.
 
 - **Frontend:** HTML, CSS and vanilla JavaScript only (no React, no build step)
 - **Database:** a real **SQLite** database running in the browser through **SQL.js 1.10.3** (SQLite compiled to WebAssembly)
@@ -48,7 +48,7 @@ The site uses **SQL.js**, which is the SQLite C library compiled to WebAssembly.
 | Saved DB key | `localStorage["watchDB_file"]` (base64 of the whole `.db` file) |
 | Cart key | `localStorage["cart"]` |
 | Contact messages | `localStorage["tw_contact_messages"]` |
-| Demo orders | `localStorage["tw_orders"]` |
+| Orders | `localStorage["tw_orders"]` |
 | Admin session (tab only) | `sessionStorage["tw_admin_session"]` |
 | Exported file | `techworld_watches.db` |
 
@@ -78,13 +78,10 @@ CREATE TABLE IF NOT EXISTS watches (
 
 ---
 
-## 3. What to show your lecturer
+## 3. Admin panel & database
 
-> The page itself makes this obvious: there is a gold **"Student Project · Lecturer Review Build"** strip at
-> the top, a **Lecturer review** button in the bottom-left corner, and an **Admin** link in the menu.
->
-> The database console is **hidden from normal visitors**. It lives inside a fake admin dashboard:
-> click **Admin** (or "View DB console") and sign in with **`admin` / `admin123`**.
+> The database console is **hidden from normal visitors**. It lives inside a staff dashboard:
+> click **Admin** and sign in with **`admin` / `admin123`**.
 
 ### A. Products come from SQL, not from a hardcoded array
 
@@ -92,36 +89,36 @@ CREATE TABLE IF NOT EXISTS watches (
 2. Each card is rendered from the query `SELECT * FROM watches` (see `displayWatches()` in `app.js`).
 3. Open the **Admin** panel (credentials above) to reach the **Local Database Console (SQL.js)**.
 
-### B. Show the database changes persist
+### B. Database changes persist
 
 1. In the admin console, type a name, a price and an image path (e.g. `assets/watch-1.jpg`).
 2. Click **INSERT INTO DB** → a new card appears and the live line shows the last query and row count.
 3. **Refresh the page (F5)** → sign in again and the new watch is still there, because the database file was saved to `localStorage`.
 
-### C. Show the Local Storage key
+### C. Local Storage key
 
 1. Press **F12** (or right-click → Inspect).
 2. Go to **Application** → **Storage** → **Local Storage** → `file://` (your page).
 3. You will see **`watchDB_file`** containing a long base64 string — that is the SQLite file itself.
 
-### D. Show the exported `.db` file
+### D. Exported `.db` file
 
 1. Click **Export .db File** in the admin console.
 2. Open `techworld_watches.db` with **DB Browser for SQLite** (https://sqlitebrowser.org/).
 3. Browse the `watches` table — same rows, same schema.
 
-### E. Show the SQL
+### E. SQL log
 
 - Click **Show SQL Log** in the console to see every query the page executed, with row counts and execution time (ms).
 - **Reset DB** drops the table and re-creates it with the 6 seed watches.
 
-### F. Demo checkout
+### F. Checkout flow
 
-1. Add a watch to the cart, open **Cart**, then click **Checkout (demo)**.
-2. The dialog is prefilled with a predetermined customer (**Ifet Great**, card ending **4242**, free Lagos delivery).
-3. Click **Place Demo Order** — after a short simulated payment delay you get an order number
+1. Add a watch to the cart, open **Cart**, then click **Checkout**.
+2. The dialog is prefilled with saved customer details (**Ifet Great**, card ending **4242**, free Lagos delivery).
+3. Click **Place Order** — after a short payment delay you get an order number
    (`TWW-0001`, `TWW-0002`, …), a total and a confirmation screen.
-4. The order is saved to `localStorage["tw_orders"]`; the cart is emptied. No payment is processed.
+4. The order is saved to `localStorage["tw_orders"]`; the cart is emptied.
 
 ### G. Lock the admin panel again
 
@@ -135,11 +132,10 @@ Click **Lock panel** in the admin dashboard (or close the tab). The console is h
 - [x] Hero with floating watch animation (`@keyframes float`) and gold glow
 - [x] Product grid: 3 columns desktop, 1 column mobile, populated from SQL
 - [x] Category badges, ₦ prices, Add to Cart, View (product modal)
-- [x] **Lecturer review layer**: top strip, floating review button, review guide modal
-- [x] **Hidden admin panel** with a fake staff login (`admin` / `admin123`) around the DB console
+- [x] **Hidden admin panel** with a staff login (`admin` / `admin123`) around the DB console
 - [x] Database console: insert, SQL log, last query + row count, export `.db`, reset
 - [x] Row preview table of the `watches` table with per-row delete
-- [x] **Predetermined demo checkout**: prefilled customer, card ending 4242, order number, saved to `tw_orders`
+- [x] **Checkout**: prefilled customer, card ending 4242, order number, saved to `tw_orders`
 - [x] Gallery: 6 image masonry layout
 - [x] Blog: 3 articles
 - [x] Contact form (validated, saved to `localStorage`), Lagos address
@@ -186,6 +182,6 @@ internet connection, the bundled copy in `vendor/sql-wasm.js` is used instead.
 
 - **Clearing site data / localStorage wipes the database** (browsers treat it as temporary storage). Export the `.db` first if you need a backup.
 - `localStorage` is per-browser and per-origin. Opening the file from a different path or browser gives you a fresh database.
-- The **admin login is a fake, client-side gate** for demonstration only (`admin` / `admin123`). It is not real authentication and must never be used to protect real data.
-- The **Checkout** button runs a predetermined demo flow; no payment is processed and no data leaves the browser.
+- The **admin login is a client-side gate** (`admin` / `admin123`). It is not real authentication and must never be used to protect real data.
+- The **Checkout** flow confirms orders and stores them in `localStorage`; no payment is processed and no data leaves the browser.
 - All images are stored locally in `assets/`, so the gallery works without internet.

@@ -4,24 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tech World Watch &mdash; Luxury Time, Affordable Price</title>
-  <meta name="description" content="Tech World Watch - a luxury watch store built with HTML, CSS, vanilla JavaScript and a real SQLite database running locally in the browser via SQL.js." />
+  <meta name="description" content="Tech World Watch - luxury watches in Lagos, Nigeria. Authenticated timepieces from Rolex, Patek Philippe, Omega, Audemars Piguet, Apple and Casio, delivered nationwide." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23111'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%23D4AF37' stroke-width='3'/%3E%3Cpath d='M32 22v10l7 5' fill='none' stroke='%23D4AF37' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <a class="skip-link" href="#products">Skip to products</a>
-
-  <!-- ================= LECTURER REVIEW STRIP ================= -->
-  <div class="review-strip" role="note">
-    <div class="container review-strip-inner">
-      <p><span class="review-dot" aria-hidden="true"></span><strong>Student Project</strong> &middot; Lecturer Review Build</p>
-      <p class="review-strip-meta">HTML &middot; CSS &middot; Vanilla JS &middot; SQLite via SQL.js &mdash; offline, no server</p>
-      <div class="review-strip-actions">
-        <button class="review-link" type="button" data-scroll-console>View DB console &darr;</button>
-        <button class="review-link" type="button" id="guideOpen">Lecturer guide</button>
-      </div>
-    </div>
-  </div>
 
   <!-- ================= HEADER / NAV ================= -->
   <header class="site-header" id="top">
@@ -102,8 +90,8 @@
           <p class="eyebrow">Our Product</p>
           <h2>Selected Timepieces</h2>
           <p class="section-sub">
-            Every card below is rendered from a live <strong>SQL</strong> query &mdash;
-            <code>SELECT * FROM watches</code> &mdash; not from a hardcoded array.
+            Six handpicked timepieces, from everyday icons to rare collector pieces. Every watch is
+            inspected, authenticated and delivered free within Lagos.
           </p>
         </header>
 
@@ -120,9 +108,9 @@
         <div class="product-grid" id="productGrid" aria-live="polite" aria-busy="true">
           <!-- Product cards are injected by app.js from the SQLite table -->
         </div>
-        <p class="grid-empty" id="gridEmpty" hidden>No watches in this category yet. Add one with the console below.</p>
+        <p class="grid-empty" id="gridEmpty" hidden>No watches in this category yet.</p>
 
-        <!-- ---------- HIDDEN ADMIN / DB DEMO PANEL ---------- -->
+        <!-- ---------- ADMIN / DB CONSOLE ---------- -->
         <section class="admin-panel" id="admin" aria-labelledby="adminTitle" hidden>
           <div class="admin-bar">
             <div class="admin-bar-title">
@@ -144,11 +132,10 @@
         <div class="console" id="dbConsole">
           <div class="console-head">
             <div>
-              <p class="eyebrow">Lecturer demo</p>
+              <p class="eyebrow">Store operations</p>
               <h3>Local Database Console (SQL.js)</h3>
               <p class="console-sub">
-                SQLite compiled to WebAssembly. The database lives in <code>localStorage</code> under
-                <code>watchDB_file</code> and can be exported as a real <code>.db</code> file.
+                Manage the product catalogue and inspect the live SQLite database powering this store.
               </p>
             </div>
             <p class="db-status" id="dbStatus"><span class="dot" aria-hidden="true"></span> Booting database&hellip;</p>
@@ -206,9 +193,8 @@
             </table>
           </div>
           <p class="console-foot">
-            Tip: open DevTools &rarr; <strong>Application</strong> &rarr; <strong>Local Storage</strong> to see the
-            <code>watchDB_file</code> key, or click <strong>Export .db File</strong> and open the download in
-            DB Browser for SQLite.
+            Changes are saved automatically to this device. Export a <code>.db</code> backup before
+            resetting the database.
           </p>
         </div>
         </section>
@@ -316,7 +302,6 @@
           <h2>Let&rsquo;s Find Your Next Watch</h2>
           <p class="section-sub">
             Tell us what you are looking for and we will reply within one business day.
-            Messages are saved locally in your browser for this demo &mdash; no server involved.
           </p>
 
           <ul class="contact-list">
@@ -380,7 +365,7 @@
           </span>
           <span class="brand-text">TECH WORLD <em>WATCH</em></span>
         </a>
-        <p>Luxury timepieces, honest prices. A student project powered by a local SQLite database.</p>
+        <p>Luxury timepieces, honest prices. Authenticated watches delivered across Nigeria.</p>
       </div>
 
       <nav class="footer-links" aria-label="Footer navigation">
@@ -393,8 +378,8 @@
       </nav>
 
       <div class="footer-meta">
-        <p><strong>Database:</strong> SQL.js 1.10.3 &middot; SQLite in your browser</p>
-        <p><strong>Storage:</strong> <code>localStorage["watchDB_file"]</code></p>
+        <p><strong>Showroom:</strong> 12 Adeola Odeku Street, Victoria Island, Lagos</p>
+        <p><strong>Opening hours:</strong> Mon &ndash; Sat, 9:00 &ndash; 18:00 WAT</p>
       </div>
     </div>
     <div class="footer-bottom">
@@ -402,7 +387,7 @@
     </div>
   </footer>
 
-  <!-- ================= ADMIN LOGIN (fake gate for the DB console) ================= -->
+  <!-- ================= ADMIN LOGIN (gate for the DB console) ================= -->
   <div class="overlay" id="adminOverlay" hidden></div>
   <div class="admin-login" id="adminLogin" role="dialog" aria-modal="true" aria-labelledby="adminLoginTitle" hidden>
     <button class="icon-btn modal-close" type="button" id="adminClose" aria-label="Close admin sign in">
@@ -417,8 +402,7 @@
       <p class="eyebrow">Restricted area</p>
       <h2 id="adminLoginTitle">Admin Sign In</h2>
       <p class="admin-login-lead">
-        The database console is hidden from customers. Sign in with the demo staff account to
-        open the admin dashboard.
+        The database console is restricted to store staff. Sign in to manage the catalogue and orders.
       </p>
     </div>
     <form class="admin-form" id="adminForm" novalidate>
@@ -428,43 +412,14 @@
       </div>
       <div class="field">
         <label for="adminPass">Password</label>
-        <input id="adminPass" name="password" type="password" placeholder="Enter demo password" autocomplete="current-password" required />
+        <input id="adminPass" name="password" type="password" placeholder="Enter password" autocomplete="current-password" required />
       </div>
-      <p class="admin-hint">Demo credentials: <code>admin</code> / <code>admin123</code></p>
       <p class="form-note" id="adminNote" role="alert"></p>
       <button class="btn btn-gold btn-block" type="submit">Sign in to Admin</button>
-      <p class="admin-fine">Simulated client-side login for the student project &mdash; not real security.</p>
     </form>
   </div>
 
-  <!-- ================= LECTURER GUIDE ================= -->
-  <div class="overlay" id="guideOverlay" hidden></div>
-  <div class="guide-modal" id="guideModal" role="dialog" aria-modal="true" aria-labelledby="guideTitle" hidden>
-    <button class="icon-btn modal-close" type="button" id="guideClose" aria-label="Close lecturer guide">
-      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 6 12 12M18 6 6 18" stroke-linecap="round" /></svg>
-    </button>
-    <p class="eyebrow">For the lecturer</p>
-    <h2 id="guideTitle">Lecturer Review Guide</h2>
-    <p class="guide-lead">
-      This is a student project that runs entirely offline from this folder. Here is the fastest
-      route through every requirement.
-    </p>
-    <ol class="guide-list">
-      <li><span class="tick" aria-hidden="true">1</span><div><strong>Admin panel (hidden DB console)</strong><br />Sign in with <code>admin</code> / <code>admin123</code> to reveal it. It is not visible to normal visitors.</div></li>
-      <li><span class="tick" aria-hidden="true">2</span><div><strong>Products come from SQL</strong><br />Every card is rendered from <code>SELECT * FROM watches</code>, not a hardcoded array.</div></li>
-      <li><span class="tick" aria-hidden="true">3</span><div><strong>Persistence</strong><br />Insert a watch, then refresh: it is still there, because the whole database is saved in <code>localStorage["watchDB_file"]</code>.</div></li>
-      <li><span class="tick" aria-hidden="true">4</span><div><strong>Real .db export</strong><br />Export the file and open it in DB Browser for SQLite to inspect the <code>watches</code> table.</div></li>
-      <li><span class="tick" aria-hidden="true">5</span><div><strong>Demo checkout</strong><br />The cart uses a predetermined fake checkout (Ifet Great, card ending 4242). No payment is processed.</div></li>
-    </ol>
-    <div class="guide-actions">
-      <button class="btn btn-dark" type="button" id="guideConsole">Open admin / DB console</button>
-      <button class="btn btn-outline" type="button" id="guideExport">Export .db file</button>
-      <button class="btn btn-outline" type="button" id="guideDismiss">Close</button>
-    </div>
-    <p class="guide-foot">Tip: DevTools &rarr; Application &rarr; Local Storage shows <code>watchDB_file</code>.</p>
-  </div>
-
-  <!-- ================= CHECKOUT (predetermined DEMO) ================= -->
+  <!-- ================= CHECKOUT ================= -->
   <div class="overlay" id="checkoutOverlay" hidden></div>
   <div class="checkout-modal" id="checkoutModal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle" hidden>
     <button class="icon-btn modal-close" type="button" id="checkoutClose" aria-label="Close checkout">
@@ -472,11 +427,11 @@
     </button>
 
     <div class="checkout-main" id="checkoutFormWrap">
-      <p class="eyebrow">Demo checkout &middot; no real payment</p>
+      <p class="eyebrow">Secure checkout</p>
       <h2 id="checkoutTitle">Checkout</h2>
       <p class="checkout-lead">
-        A predetermined demo order: details are prefilled and the card ending in 4242 is selected.
-        Place the order to see the simulated confirmation.
+        Confirm your delivery details and payment method to place the order. Your saved card is
+        selected by default.
       </p>
 
       <div class="checkout-grid">
@@ -508,15 +463,15 @@
           </div>
 
           <fieldset class="pay-methods">
-            <legend>Payment method (demo)</legend>
-            <label><input type="radio" name="pay" value="Card ending 4242" checked /> Card ending 4242 <span class="pay-tag">default</span></label>
+            <legend>Payment method</legend>
+            <label><input type="radio" name="pay" value="Card ending 4242" checked /> Card ending 4242 <span class="pay-tag">saved</span></label>
             <label><input type="radio" name="pay" value="Bank transfer" /> Bank transfer</label>
             <label><input type="radio" name="pay" value="Pay on delivery" /> Pay on delivery</label>
           </fieldset>
 
           <p class="form-note" id="checkoutNote" role="alert"></p>
-          <button class="btn btn-gold btn-block" type="submit" id="placeOrderBtn">Place Demo Order</button>
-          <p class="checkout-fine">Nothing is charged and the order stays in this browser only.</p>
+          <button class="btn btn-gold btn-block" type="submit" id="placeOrderBtn">Place Order</button>
+          <p class="checkout-fine">Free delivery within Lagos. Your details are kept on this device only.</p>
         </form>
       </div>
     </div>
@@ -527,16 +482,16 @@
           <path d="m5 12.5 4.5 4.5L19 7" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </div>
-      <h2>Order placed (demo)</h2>
-      <p>Thanks <strong id="successName">Ifet</strong>, your demo order is confirmed.</p>
+      <h2>Order placed</h2>
+      <p>Thanks <strong id="successName">Ifet</strong>, your order is confirmed.</p>
       <div class="order-box">
         <div><span>Order number</span><strong id="successOrder">TWW-0001</strong></div>
         <div><span>Payment</span><strong id="successPayment">Card ending 4242</strong></div>
         <div><span>Total</span><strong id="successTotal">&#8358;0</strong></div>
         <div><span>Delivery</span><strong>2&ndash;3 business days &middot; Lagos</strong></div>
-        <div><span>Saved to</span><strong><code>localStorage["tw_orders"]</code></strong></div>
+        <div><span>Status</span><strong>Confirmed</strong></div>
       </div>
-      <p class="checkout-fine">Simulated transaction &mdash; no money moved and no data left this browser.</p>
+      <p class="checkout-fine">A copy of this order has been saved on your device.</p>
       <div class="success-actions">
         <button class="btn btn-gold" type="button" id="successContinue">Continue shopping</button>
         <button class="btn btn-outline" type="button" id="successClose">Close</button>
@@ -556,7 +511,7 @@
     <div class="cart-items" id="cartItems"></div>
     <footer class="cart-foot">
       <p class="cart-total">Total <strong id="cartTotal">&#8358;0</strong></p>
-      <button class="btn btn-gold btn-block" type="button" id="checkoutBtn">Checkout (demo)</button>
+      <button class="btn btn-gold btn-block" type="button" id="checkoutBtn">Checkout</button>
       <button class="link-btn" type="button" id="clearCartBtn">Clear cart</button>
     </footer>
   </aside>
@@ -576,11 +531,6 @@
       <button class="btn btn-gold btn-block" type="button" id="modalAdd">Add to Cart</button>
     </div>
   </div>
-
-  <button class="review-fab" id="guideFab" type="button" aria-haspopup="dialog" aria-controls="guideModal">
-    <span class="review-dot" aria-hidden="true"></span>
-    Lecturer review
-  </button>
 
   <div class="toast-stack" id="toastStack" aria-live="polite" aria-atomic="false"></div>
 

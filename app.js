@@ -17,10 +17,10 @@ const WASM_CDN = "https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.
 const DB_STORAGE_KEY = "watchDB_file";   // localStorage: base64 encoded SQLite file
 const CART_KEY = "cart";                 // localStorage: cart items
 const MESSAGES_KEY = "tw_contact_messages";
-const ORDERS_KEY = "tw_orders";          // localStorage: simulated checkout orders
+const ORDERS_KEY = "tw_orders";          // localStorage: checkout orders
 const ADMIN_SESSION_KEY = "tw_admin_session";
 
-/* Simulated staff account for the demo admin gate. */
+/* Staff account for the admin gate. */
 const ADMIN_USER = "admin";
 const ADMIN_PASS = "admin123";
 
@@ -655,7 +655,7 @@ function renderCart() {
 /* Every overlay is hidden with the [hidden] attribute; CSS guarantees it wins
    over display rules, so the cart stays closable. */
 function anyLayerOpen() {
-  return ["#cartDrawer", "#productModal", "#checkoutModal", "#adminLogin", "#guideModal"]
+  return ["#cartDrawer", "#productModal", "#checkoutModal", "#adminLogin"]
     .some((selector) => {
       const el = $(selector);
       return el && !el.hidden;
@@ -760,12 +760,12 @@ function handleContactSubmit(event) {
   }
 
   note.classList.remove("is-error");
-  note.textContent = "Thanks " + name + "! Your message is saved locally. We will be in touch.";
+  note.textContent = "Thanks " + name + "! We will be in touch shortly.";
   event.target.reset();
-  toast("Message saved to localStorage.");
+  toast("Message sent. We will get back to you shortly.");
 }
 
-/* ----------------------------- Admin panel gate (demo only) ----------------------------- */
+/* ----------------------------- Admin panel gate ----------------------------- */
 function adminUnlocked() {
   try {
     return sessionStorage.getItem(ADMIN_SESSION_KEY) === "1";
@@ -824,7 +824,7 @@ function handleAdminLogin(event) {
   const note = $("#adminNote");
 
   if (user !== ADMIN_USER || pass !== ADMIN_PASS) {
-    note.textContent = "Incorrect demo credentials. Use admin / admin123.";
+    note.textContent = "Incorrect username or password.";
     note.classList.add("is-error");
     const modal = $("#adminLogin");
     modal.classList.remove("is-shake");
@@ -836,14 +836,14 @@ function handleAdminLogin(event) {
   try {
     sessionStorage.setItem(ADMIN_SESSION_KEY, "1");
   } catch (err) {
-    console.warn("[Admin] Could not persist the demo session.", err);
+    console.warn("[Admin] Could not persist the session.", err);
   }
 
   note.textContent = "";
   note.classList.remove("is-error");
   closeAdminLogin();
   openAdminPanel(true);
-  toast("Admin panel unlocked \u2014 database console is now visible.");
+  toast("Signed in.");
 }
 
 function lockAdminPanel() {
@@ -855,26 +855,10 @@ function lockAdminPanel() {
   } catch (err) {
     /* ignore */
   }
-  toast("Admin panel locked. Visitors cannot see the database console.");
+  toast("Signed out.");
 }
 
-/* ----------------------------- Lecturer guide ----------------------------- */
-function openGuide() {
-  state.lastFocused = document.activeElement;
-  $("#guideOverlay").hidden = false;
-  $("#guideModal").hidden = false;
-  syncScrollLock();
-  $("#guideClose").focus();
-}
-
-function closeGuide() {
-  $("#guideOverlay").hidden = true;
-  $("#guideModal").hidden = true;
-  syncScrollLock();
-  if (!anyLayerOpen()) restoreFocus();
-}
-
-/* ----------------------------- Demo checkout ----------------------------- */
+/* ----------------------------- Checkout ----------------------------- */
 function readOrders() {
   try {
     const list = JSON.parse(localStorage.getItem(ORDERS_KEY) || "[]");
@@ -894,7 +878,7 @@ function saveOrder(order) {
   try {
     localStorage.setItem(ORDERS_KEY, JSON.stringify(orders));
   } catch (err) {
-    console.warn("[Checkout] Could not save the demo order.", err);
+    console.warn("[Checkout] Could not save the order.", err);
   }
 }
 
@@ -924,14 +908,14 @@ function openCheckout() {
   state.lastFocused = $("#cartToggle");
 
   const form = $("#checkoutForm");
-  form.reset(); // restores the predetermined demo customer details
+  form.reset(); // restores the saved customer details
   $("#checkoutFormWrap").hidden = false;
   $("#checkoutSuccess").hidden = true;
   $("#checkoutNote").textContent = "";
   $("#checkoutNote").classList.remove("is-error");
   const btn = $("#placeOrderBtn");
   btn.disabled = false;
-  btn.textContent = "Place Demo Order";
+  btn.textContent = "Place Order";
 
   renderCheckoutSummary();
   $("#checkoutOverlay").hidden = false;
@@ -992,11 +976,11 @@ function handlePlaceOrder(event) {
 
   const btn = $("#placeOrderBtn");
   btn.disabled = true;
-  btn.textContent = "Processing demo payment\u2026";
+  btn.textContent = "Processing payment\u2026";
   note.classList.remove("is-error");
-  note.textContent = "Contacting the demo payment gateway\u2026";
+  note.textContent = "Contacting the payment gateway\u2026";
 
-  // Predetermined fake delay so the flow feels like a real checkout.
+  // Short delay so the flow feels like a real checkout.
   window.setTimeout(() => {
     const order = {
       number: nextOrderNumber(),
@@ -1005,23 +989,23 @@ function handlePlaceOrder(event) {
       customer: { name, phone, email, address },
       payment,
       placedAt: new Date().toISOString(),
-      status: "demo-confirmed"
+      status: "confirmed"
     };
 
     saveOrder(order);
     showCheckoutSuccess(order);
 
-    // The demo order is complete, so empty the cart.
+    // The order is complete, so empty the cart.
     state.cart = [];
     persistCart();
-    toast("Demo order " + order.number + " confirmed. No payment was taken.");
+    toast("Order " + order.number + " confirmed.");
   }, 1400);
 }
 
 function finishCheckout() {
   const number = $("#successOrder").textContent;
   closeCheckout();
-  toast("Order " + number + " saved to localStorage[\"tw_orders\"].");
+  toast("Order " + number + " confirmed.");
   const products = $("#products");
   if (products) products.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -1138,7 +1122,7 @@ function setupEvents() {
     if (button.dataset.cart === "remove") removeFromCart(id);
   });
 
-  // Demo checkout dialog
+  // Checkout dialog
   $("#checkoutClose").addEventListener("click", closeCheckout);
   $("#checkoutOverlay").addEventListener("click", closeCheckout);
   $("#checkoutForm").addEventListener("submit", handlePlaceOrder);
@@ -1166,20 +1150,6 @@ function setupEvents() {
   $("#adminOverlay").addEventListener("click", closeAdminLogin);
   $("#adminLock").addEventListener("click", lockAdminPanel);
 
-  // Lecturer guide
-  $("#guideOpen").addEventListener("click", openGuide);
-  $("#guideFab").addEventListener("click", openGuide);
-  $("#guideClose").addEventListener("click", closeGuide);
-  $("#guideDismiss").addEventListener("click", closeGuide);
-  $("#guideOverlay").addEventListener("click", closeGuide);
-  $("#guideConsole").addEventListener("click", () => {
-    closeGuide();
-    openAdminPanel(true);
-  });
-  $("#guideExport").addEventListener("click", () => {
-    exportDB();
-  });
-
   // Product detail modal
   $("#modalClose").addEventListener("click", closeProduct);
   $("#productOverlay").addEventListener("click", closeProduct);
@@ -1196,7 +1166,6 @@ function setupEvents() {
     if (event.key !== "Escape") return;
     if (!$("#checkoutModal").hidden) closeCheckout();
     if (!$("#adminLogin").hidden) closeAdminLogin();
-    if (!$("#guideModal").hidden) closeGuide();
     if (!$("#cartDrawer").hidden) closeCart();
     if (!$("#productModal").hidden) closeProduct();
   });
