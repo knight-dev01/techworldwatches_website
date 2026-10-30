@@ -1,0 +1,21 @@
+# OS / editor noise
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Python (not used by the site, but keeps the folder clean)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# SQLite journals / temporary files
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Local test output
+/test-output/
