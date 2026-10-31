@@ -498,6 +498,68 @@ function exportDB() {
   toast("Exported techworld_watches.db \u2014 open it in DB Browser for SQLite.");
 }
 
+/* Build a MySQL/MariaDB dump from the current rows so the browser data can be
+   imported into XAMPP (phpMyAdmin). It drops and re-creates the table, so
+   re-importing replaces the MySQL copy with whatever is in the admin panel now. */
+function mysqlString(value) {
+  return "'" + String(value == null ? "" : value).replace(/\\/g, "\\\\").replace(/'/g, "''") + "'";
+}
+
+function exportMySQL() {
+  if (!state.ready || !state.watches.length) {
+    toast("There are no watches to export yet.", "error");
+    return;
+  }
+
+  const header = [
+    "-- Tech World Watches - MySQL / MariaDB import file",
+    "-- Generated " + new Date().toISOString(),
+    "-- XAMPP: start Apache + MySQL, open phpMyAdmin, Import, choose this file.",
+    "-- CLI:   mysql -u root < techworld_watches.sql",
+    "",
+    "CREATE DATABASE IF NOT EXISTS techworld_watches",
+    "  CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;",
+    "USE techworld_watches;",
+    "",
+    "SET NAMES utf8mb4;",
+    "DROP TABLE IF EXISTS watches;",
+    "CREATE TABLE watches (",
+    "  id INT UNSIGNED NOT NULL AUTO_INCREMENT,",
+    "  name VARCHAR(120) NOT NULL,",
+    "  price INT UNSIGNED NOT NULL,",
+    "  image VARCHAR(255) NOT NULL,",
+    "  category VARCHAR(40) NOT NULL DEFAULT 'luxury',",
+    "  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,",
+    "  PRIMARY KEY (id)",
+    ") ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;",
+    "",
+    "INSERT INTO watches (id, name, price, image, category, created_at) VALUES"
+  ];
+
+  const rows = state.watches.map((w) => {
+    const created = w.created_at ? mysqlString(w.created_at) : "CURRENT_TIMESTAMP";
+    return "  (" +
+      Number(w.id) + ", " +
+      mysqlString(w.name) + ", " +
+      Number(w.price) + ", " +
+      mysqlString(w.image) + ", " +
+      mysqlString(w.category || "luxury") + ", " +
+      created + ")";
+  });
+
+  const content = header.join("\n") + "\n" + rows.join(",\n") + ";\n";
+  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "techworld_watches.sql";
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  window.setTimeout(() => URL.revokeObjectURL(url), 2000);
+  toast("Exported techworld_watches.sql \u2014 import it in phpMyAdmin.");
+}
+
 function resetDB() {
   if (!state.ready) return;
   if (!window.confirm("Reset the database? All rows will be deleted and the 6 seed watches restored.")) return;
@@ -1098,6 +1160,7 @@ function setupEvents() {
   });
 
   $("#exportBtn").addEventListener("click", exportDB);
+  $("#exportSqlBtn").addEventListener("click", exportMySQL);
   $("#resetBtn").addEventListener("click", resetDB);
 
   // Delete row inside DB table

@@ -25,6 +25,8 @@ techworldwatches_website/
 ├── style.css                  # design system + responsive layout
 ├── app.js                     # SQL.js database logic + UI logic
 ├── README.md                  # this file
+├── database/
+│   └── techworld_watches.sql  # MySQL/MariaDB dump for XAMPP (phpMyAdmin)
 ├── assets/                    # local watch photos (work offline)
 │   ├── hero.jpg
 │   ├── watch-1.jpg … watch-6.jpg
@@ -50,7 +52,8 @@ The site uses **SQL.js**, which is the SQLite C library compiled to WebAssembly.
 | Contact messages | `localStorage["tw_contact_messages"]` |
 | Orders | `localStorage["tw_orders"]` |
 | Admin session (tab only) | `sessionStorage["tw_admin_session"]` |
-| Exported file | `techworld_watches.db` |
+| Exported SQLite file | `techworld_watches.db` |
+| XAMPP / MySQL import | `database/techworld_watches.sql` (or **Export MySQL .sql** in the admin panel) |
 
 ### Schema
 
@@ -126,14 +129,54 @@ Click **Lock panel** in the admin dashboard (or close the tab). The console is h
 
 ---
 
-## 4. Feature checklist
+## 4. Open the database in XAMPP (MySQL / MariaDB)
+
+The site itself uses SQLite in your browser, but you can also inspect the same
+catalogue in XAMPP's MySQL through phpMyAdmin.
+
+### Import the starter database
+
+1. Open the **XAMPP Control Panel** and start **Apache** and **MySQL**.
+2. Go to **http://localhost/phpmyadmin** (user `root`, blank password by default).
+3. Click **Import** → **Choose File** → select [`database/techworld_watches.sql`](database/techworld_watches.sql) → **Go**.
+4. The `techworld_watches` database and the `watches` table (6 rows) are created.
+   Browse it under **Databases → techworld_watches → watches**.
+
+Command-line alternative (from the folder containing the file):
+
+```bat
+mysql -u root < database\techworld_watches.sql
+```
+
+### Keep MySQL in sync after adding watches in the admin panel
+
+The browser database and MySQL are **separate copies — they do not sync automatically**.
+The browser saves to `localStorage["watchDB_file"]`; MySQL only changes when you import.
+
+When you add or delete a watch in the admin panel:
+
+1. Click **Export MySQL .sql** in the admin console. This downloads a fresh
+   `techworld_watches.sql` built from the current rows.
+2. In phpMyAdmin, open the **Import** tab and import that file again.
+   The dump starts with `DROP TABLE IF EXISTS watches`, so MySQL is replaced
+   with exactly what the admin panel currently shows.
+3. Refresh phpMyAdmin → the `watches` table matches the store.
+
+> If you want inserts in the browser to write to MySQL directly, that requires a
+> PHP + MySQL backend running under Apache. This project intentionally stays
+> server-free so `index.html` opens by double-clicking; the export/import step
+> is the no-server way to move data into XAMPP.
+
+---
+
+## 5. Feature checklist
 
 - [x] Nav bar: Home / Our Product / Gallery / Blog / Contact Us / Cart (0) + Admin entry
 - [x] Hero with floating watch animation (`@keyframes float`) and gold glow
 - [x] Product grid: 3 columns desktop, 1 column mobile, populated from SQL
 - [x] Category badges, ₦ prices, Add to Cart, View (product modal)
 - [x] **Hidden admin panel** with a staff login (`admin` / `admin123`) around the DB console
-- [x] Database console: insert, SQL log, last query + row count, export `.db`, reset
+- [x] Database console: insert, SQL log, last query + row count, export `.db`, export MySQL `.sql`, reset
 - [x] Row preview table of the `watches` table with per-row delete
 - [x] **Checkout**: prefilled customer, card ending 4242, order number, saved to `tw_orders`
 - [x] Gallery: 6 image masonry layout
@@ -146,7 +189,7 @@ Click **Lock panel** in the admin dashboard (or close the tab). The console is h
 
 ---
 
-## 5. How it works (short version)
+## 6. How it works (short version)
 
 ```js
 // 1. Start SQL.js
@@ -178,7 +221,7 @@ internet connection, the bundled copy in `vendor/sql-wasm.js` is used instead.
 
 ---
 
-## 6. Notes
+## 7. Notes
 
 - **Clearing site data / localStorage wipes the database** (browsers treat it as temporary storage). Export the `.db` first if you need a backup.
 - `localStorage` is per-browser and per-origin. Opening the file from a different path or browser gives you a fresh database.
