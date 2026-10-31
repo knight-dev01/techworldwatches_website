@@ -5,7 +5,8 @@ A complete **offline** luxury watch store built with HTML, CSS and vanilla JavaS
 - **Frontend:** HTML, CSS and vanilla JavaScript only (no React, no build step)
 - **Database:** a real **SQLite** database running in the browser through **SQL.js 1.10.3** (SQLite compiled to WebAssembly)
 - **Persistence:** the database file is saved into `localStorage` as base64 and can be exported as a real `.db` file
-- **No backend, no Node.js, no npm, no MySQL server** — just open `index.html`
+- **No backend, no Node.js, no npm** — just open `index.html`; an optional MySQL/XAMPP import file is included
+- **XAMPP-ready:** `database/techworld_watches.sql` imports into phpMyAdmin, and the admin panel can export a fresh MySQL dump
 
 ---
 
@@ -177,6 +178,7 @@ When you add or delete a watch in the admin panel:
 - [x] Category badges, ₦ prices, Add to Cart, View (product modal)
 - [x] **Hidden admin panel** with a staff login (`admin` / `admin123`) around the DB console
 - [x] Database console: insert, SQL log, last query + row count, export `.db`, export MySQL `.sql`, reset
+- [x] XAMPP/phpMyAdmin import file (`database/techworld_watches.sql`) with the same 6 watches
 - [x] Row preview table of the `watches` table with per-row delete
 - [x] **Checkout**: prefilled customer, card ending 4242, order number, saved to `tw_orders`
 - [x] Gallery: 6 image masonry layout
